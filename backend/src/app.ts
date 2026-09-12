@@ -12,6 +12,7 @@ import {
     RATE_LIMIT_MAX,
     RATE_LIMIT_WINDOW_MS,
 } from './config'
+import { csrfProtection } from './middlewares/csrf'
 import errorHandler from './middlewares/error-handler'
 import serveStatic from './middlewares/serverStatic'
 import routes from './routes'
@@ -39,6 +40,13 @@ app.use(
     cors({
         origin: ORIGIN_ALLOW,
         credentials: true,
+        allowedHeaders: [
+            'Content-Type',
+            'Authorization',
+            'x-csrf-token',
+            'csrf-token',
+            'x-xsrf-token',
+        ],
     })
 )
 
@@ -46,6 +54,7 @@ app.use(serveStatic(path.join(__dirname, 'public')))
 
 app.use(urlencoded({ extended: true, limit: '10kb' }))
 app.use(json({ limit: '10kb' }))
+app.use(csrfProtection)
 
 app.options('*', cors({ origin: ORIGIN_ALLOW, credentials: true }))
 app.use(routes)
