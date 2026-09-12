@@ -25,9 +25,11 @@ app.disable('x-powered-by')
 app.use(
     rateLimit({
         windowMs: RATE_LIMIT_WINDOW_MS,
+        limit: RATE_LIMIT_MAX,
         max: RATE_LIMIT_MAX,
         standardHeaders: true,
         legacyHeaders: false,
+        validate: false,
     })
 )
 

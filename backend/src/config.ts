@@ -7,7 +7,7 @@ export const { JWT_SECRET = 'JWT_SECRET' } = process.env
 export const { ORIGIN_ALLOW = 'http://localhost:5173' } = process.env
 export const REQUEST_BODY_LIMIT = '10kb'
 export const RATE_LIMIT_WINDOW_MS = 60 * 1000
-export const RATE_LIMIT_MAX = 100
+export const RATE_LIMIT_MAX = 1000
 export const MIN_FILE_SIZE = 2 * 1024
 export const MAX_FILE_SIZE = 5 * 1024 * 1024
 export const MAX_PAGE_SIZE = 10

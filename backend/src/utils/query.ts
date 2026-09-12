@@ -19,10 +19,7 @@ export function normalizeLimit(
     if (!Number.isFinite(parsed) || parsed < 1) {
         return defaultValue
     }
-    if (parsed > maxValue) {
-        throw new BadRequestError('Превышен лимит выборки')
-    }
-    return Math.floor(parsed)
+    return Math.min(Math.floor(parsed), maxValue)
 }
 
 export function normalizePage(value: unknown, defaultValue = 1) {
