@@ -1,10 +1,23 @@
 import { existsSync, mkdirSync, rename } from 'fs'
-import { basename, join } from 'path'
+import { basename, join, relative, resolve } from 'path'
 
 function movingFile(imagePath: string, from: string, to: string) {
     const fileName = basename(imagePath)
-    const imagePathTemp = join(from, fileName)
-    const imagePathPermanent = join(to, fileName)
+    if (!fileName || fileName === '.' || fileName === '..') {
+        throw new Error('Ошибка при сохранении файла')
+    }
+
+    const imagePathTemp = resolve(join(from, fileName))
+    const imagePathPermanent = resolve(join(to, fileName))
+    const resolvedFrom = resolve(from)
+    const resolvedTo = resolve(to)
+
+    if (
+        relative(resolvedFrom, imagePathTemp).startsWith('..') ||
+        relative(resolvedTo, imagePathPermanent).startsWith('..')
+    ) {
+        throw new Error('Ошибка при сохранении файла')
+    }
 
     mkdirSync(to, { recursive: true })
     if (!existsSync(imagePathTemp)) {

@@ -33,10 +33,12 @@ export type ApiListResponse<Type> = {
 class Api {
     private readonly baseUrl: string
     protected options: RequestInit
+    private csrfToken: string | null = null
 
     constructor(baseUrl: string, options: RequestInit = {}) {
         this.baseUrl = baseUrl
         this.options = {
+            credentials: 'include',
             headers: {
                 ...((options.headers as object) ?? {}),
             },
@@ -53,12 +55,41 @@ class Api {
                   )
     }
 
+    private async ensureCsrfToken() {
+        if (this.csrfToken) {
+            return this.csrfToken
+        }
+        const res = await fetch(`${this.baseUrl}/auth/csrf-token`, {
+            method: 'GET',
+            credentials: 'include',
+        })
+        const data = await this.handleResponse<{ csrfToken: string }>(res)
+        this.csrfToken = data.csrfToken
+        return this.csrfToken
+    }
+
     protected async request<T>(endpoint: string, options: RequestInit) {
         try {
+            const method = (options.method || 'GET').toUpperCase()
+            const headers: Record<string, string> = {
+                ...((this.options.headers as Record<string, string>) ?? {}),
+                ...((options.headers as Record<string, string>) ?? {}),
+            }
+            if (
+                !['GET', 'HEAD', 'OPTIONS'].includes(method) &&
+                endpoint !== '/auth/csrf-token'
+            ) {
+                headers['x-csrf-token'] = await this.ensureCsrfToken()
+            }
             const res = await fetch(`${this.baseUrl}${endpoint}`, {
                 ...this.options,
                 ...options,
+                headers,
+                credentials: 'include',
             })
+            if (res.status === 403) {
+                this.csrfToken = null
+            }
             return await this.handleResponse<T>(res)
         } catch (error) {
             return Promise.reject(error)

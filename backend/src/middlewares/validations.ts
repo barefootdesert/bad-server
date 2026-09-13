@@ -1,15 +1,14 @@
 import { Joi, celebrate } from 'celebrate'
 import { Types } from 'mongoose'
+import { MAX_COMMENT_LENGTH } from '../config'
 
-// eslint-disable-next-line no-useless-escape
-export const phoneRegExp = /^(\+\d+)?(?:\s|-?|\(?\d+\)?)+$/
+export const phoneRegExp = /^\+?[0-9][0-9()\s-]{9,19}$/
 
 export enum PaymentType {
     Card = 'card',
     Online = 'online',
 }
 
-// валидация id
 export const validateOrderBody = celebrate({
     body: Joi.object().keys({
         items: Joi.array()
@@ -21,6 +20,9 @@ export const validateOrderBody = celebrate({
                     return helpers.message({ custom: 'Невалидный id' })
                 })
             )
+            .min(1)
+            .max(50)
+            .required()
             .messages({
                 'array.empty': 'Не указаны товары',
             }),
@@ -35,21 +37,19 @@ export const validateOrderBody = celebrate({
         email: Joi.string().email().required().messages({
             'string.empty': 'Не указан email',
         }),
-        phone: Joi.string().required().pattern(phoneRegExp).messages({
+        phone: Joi.string().required().max(30).pattern(phoneRegExp).messages({
             'string.empty': 'Не указан телефон',
         }),
-        address: Joi.string().required().messages({
+        address: Joi.string().required().max(200).messages({
             'string.empty': 'Не указан адрес',
         }),
         total: Joi.number().required().messages({
             'string.empty': 'Не указана сумма заказа',
         }),
-        comment: Joi.string().optional().allow(''),
-    }),
+        comment: Joi.string().optional().allow('').max(MAX_COMMENT_LENGTH),
+    }).unknown(true),
 })
 
-// валидация товара.
-// name и link - обязательные поля, name - от 2 до 30 символов, link - валидный url
 export const validateProductBody = celebrate({
     body: Joi.object().keys({
         title: Joi.string().required().min(2).max(30).messages({
@@ -64,7 +64,7 @@ export const validateProductBody = celebrate({
         category: Joi.string().required().messages({
             'string.empty': 'Поле "category" должно быть заполнено',
         }),
-        description: Joi.string().required().messages({
+        description: Joi.string().required().max(1000).messages({
             'string.empty': 'Поле "description" должно быть заполнено',
         }),
         price: Joi.number().allow(null),
@@ -82,7 +82,7 @@ export const validateProductUpdateBody = celebrate({
             originalName: Joi.string().required(),
         }),
         category: Joi.string(),
-        description: Joi.string(),
+        description: Joi.string().max(1000),
         price: Joi.number().allow(null),
     }),
 })
@@ -106,7 +106,7 @@ export const validateUserBody = celebrate({
             'string.min': 'Минимальная длина поля "name" - 2',
             'string.max': 'Максимальная длина поля "name" - 30',
         }),
-        password: Joi.string().min(6).required().messages({
+        password: Joi.string().min(6).max(100).required().messages({
             'string.empty': 'Поле "password" должно быть заполнено',
         }),
         email: Joi.string()
@@ -116,7 +116,7 @@ export const validateUserBody = celebrate({
             .messages({
                 'string.empty': 'Поле "email" должно быть заполнено',
             }),
-    }),
+    }).unknown(true),
 })
 
 export const validateAuthentication = celebrate({
@@ -128,8 +128,9 @@ export const validateAuthentication = celebrate({
             .messages({
                 'string.required': 'Поле "email" должно быть заполнено',
             }),
-        password: Joi.string().required().messages({
+        password: Joi.string().required().max(100).messages({
             'string.empty': 'Поле "password" должно быть заполнено',
         }),
-    }),
+        csrfToken: Joi.string().optional(),
+    }).unknown(true),
 })
