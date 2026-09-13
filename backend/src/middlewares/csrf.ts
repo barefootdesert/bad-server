@@ -2,10 +2,10 @@ import crypto from 'crypto'
 import { NextFunction, Request, Response } from 'express'
 import ForbiddenError from '../errors/forbidden-error'
 
-export const CSRF_COOKIE_NAME = 'csrfToken'
+export const CSRF_COOKIE_NAME = '_csrf'
 
 const csrfCookieOptions = {
-    httpOnly: true,
+    httpOnly: false,
     sameSite: 'lax' as const,
     secure: false,
     path: '/',
@@ -23,7 +23,9 @@ const readCsrfFromRequest = (req: Request) => {
         req.header('csrf-token') ||
         req.header('x-xsrf-token')
     const bodyToken =
-        typeof req.body === 'object' && req.body ? req.body.csrfToken : undefined
+        typeof req.body === 'object' && req.body
+            ? req.body.csrfToken || req.body[CSRF_COOKIE_NAME]
+            : undefined
     return headerToken || bodyToken
 }
 

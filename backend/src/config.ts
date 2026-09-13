@@ -6,8 +6,8 @@ export const { DB_ADDRESS = 'mongodb://127.0.0.1:27017/weblarek' } = process.env
 export const { JWT_SECRET = 'JWT_SECRET' } = process.env
 export const { ORIGIN_ALLOW = 'http://localhost:5173' } = process.env
 export const REQUEST_BODY_LIMIT = '10kb'
-export const RATE_LIMIT_WINDOW_MS = 60 * 1000
-export const RATE_LIMIT_MAX = 1000
+export const RATE_LIMIT_WINDOW_MS = 1000
+export const RATE_LIMIT_MAX = 20
 export const MIN_FILE_SIZE = 2 * 1024
 export const MAX_FILE_SIZE = 5 * 1024 * 1024
 export const MAX_PAGE_SIZE = 10

@@ -47,7 +47,7 @@ export const validateOrderBody = celebrate({
             'string.empty': 'Не указана сумма заказа',
         }),
         comment: Joi.string().optional().allow('').max(MAX_COMMENT_LENGTH),
-    }),
+    }).unknown(true),
 })
 
 export const validateProductBody = celebrate({
@@ -116,7 +116,7 @@ export const validateUserBody = celebrate({
             .messages({
                 'string.empty': 'Поле "email" должно быть заполнено',
             }),
-    }),
+    }).unknown(true),
 })
 
 export const validateAuthentication = celebrate({
@@ -131,5 +131,6 @@ export const validateAuthentication = celebrate({
         password: Joi.string().required().max(100).messages({
             'string.empty': 'Поле "password" должно быть заполнено',
         }),
-    }),
+        csrfToken: Joi.string().optional(),
+    }).unknown(true),
 })
